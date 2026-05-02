@@ -1,7 +1,7 @@
 
 import unittest
 
-from htmlnode import HTMLNode, LeafNode
+from htmlnode import HTMLNode, ParentNode, LeafNode
 
 dict_a = {
     "href": "https://www.google.com",
@@ -88,6 +88,53 @@ class TestHTMLNode(unittest.TestCase):
         self.assertEqual(repr_node, expected_output)
 
 
+class TestParentNode(unittest.TestCase):
+    child_node1 = LeafNode("p", "Hello, child!")
+    child_node2 = LeafNode("p", "Testing child...")
+    parent_node1 = ParentNode("div", [child_node1])
+    parent_node2 = ParentNode("div", [child_node1, child_node2])
+    parent_node3 = ParentNode("div", None)
+
+    def test_parent_to_html_1(self):
+        test_node = self.parent_node1.to_html()
+        expected_output = "<div><p>Hello, child!</p></div>"
+        print("\nTesting to_html() on parent_node1...")
+        print(f"Expected result: {expected_output}")
+        print(f"Actual:          {test_node}")
+        self.assertEqual(test_node, expected_output)
+
+    def test_parent_to_html_2(self):
+        test_node = self.parent_node2.to_html()
+        expected_output = "<div><p>Hello, child!</p><p>Testing child...</p></div>"
+        print("\nTesting to_html() on parent_node2...")
+        print(f"Expected result: {expected_output}")
+        print(f"Actual:          {test_node}")
+        self.assertEqual(test_node, expected_output)
+
+    def test_parent_to_html_3(self):
+        with self.assertRaises(ValueError) as context:
+            test_node = self.parent_node3.to_html()
+            expected_output = "ValueError: ParentNode must have at least one child"
+            print("\nTesting to_html() on parent_node3...")
+            print(f"Expected result: {expected_output}")
+            print(f"Actual:          {test_node}")
+        self.assertEqual(str(context.exception), "ParentNode must have at least one child")
+
+    def test_parent_to_html_4(self):
+        test_node = ParentNode(
+            "p",
+            [
+                LeafNode("b", "Bold text"),
+                LeafNode(None, "Normal text"),
+                LeafNode("i", "italic text"),
+                LeafNode(None, "Normal text"),
+            ],
+        ).to_html()
+        expected_output = "<p><b>Bold text</b>Normal text<i>italic text</i>Normal text</p>"
+        print("\nTesting to_html() on parent_node4...")
+        print(f"Expected result: {expected_output}")
+        print(f"Actual:          {test_node}")
+        self.assertEqual(test_node, expected_output)
 
 
 class TestLeafNode(unittest.TestCase):
